@@ -1,0 +1,10 @@
+
+build/
+data/
+.gradle/
+.settings/
+.project
+.classpath
+*.class
+/bin/
+.DS_Store*
