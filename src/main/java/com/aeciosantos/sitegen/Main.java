@@ -25,6 +25,9 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.SimpleWebServer;
+
 public class Main {
 
 	private static ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
@@ -35,8 +38,7 @@ public class Main {
 		System.out.println("Starting site generator...");
 		
 		Config config = new Config();
-		Site site = new Site("http://localhost:3000");
-//		Site site = new Site(Paths.get(config.output_path).toAbsolutePath().toString());
+		Site site = new Site("http://localhost:8080");
 		
 		
 		List<Page> pages = loadPages(Paths.get(config.pages_path));
@@ -75,6 +77,11 @@ public class Main {
 		);
 		
 		System.out.println("Generation finished.");
+		
+		SimpleWebServer server = new SimpleWebServer("127.0.0.1", 8080, 
+				Paths.get(config.output_path).toFile(), true);
+		server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+		System.out.println("Website available at http://127.0.0.1:8080");
 	}
 
 	private static String getTemplateType(String template) {
@@ -179,7 +186,7 @@ public class Main {
 	static public class Context {
 		public Page page;
 		public Site site;
-
+		public Config config;
 		public Context(Site site, Page page) {
 			this.site = site;
 			this.page = page;
