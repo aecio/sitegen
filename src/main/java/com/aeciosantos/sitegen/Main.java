@@ -38,10 +38,11 @@ public class Main {
 		Site site = new Site("http://localhost:3000");
 //		Site site = new Site(Paths.get(config.output_path).toAbsolutePath().toString());
 		
-		Files.createDirectories(Paths.get(config.output_path).getParent());
 		
-		List<Page> pages = loadPages(config.pages_path);
-		Map<String, String> templateFiles = loadTemplates(config.templates_path);
+		List<Page> pages = loadPages(Paths.get(config.pages_path));
+		Map<String, String> templateFiles = loadTemplates(Paths.get(config.templates_path));
+		
+		Files.createDirectories(Paths.get(".", config.output_path).getParent());
 		
 		for(Page page : pages) {
 			
@@ -82,8 +83,12 @@ public class Main {
 		return templateType;
 	}
 
-	private static Map<String, String> loadTemplates(String templatesPath) throws IOException {
-		DirectoryStream<Path> path = Files.newDirectoryStream(Paths.get(templatesPath));
+	private static Map<String, String> loadTemplates(Path templatesPath) throws IOException {
+		if(!Files.isDirectory(templatesPath)) {
+			System.err.println("Failed to load templates from: "+templatesPath.toString());
+			System.exit(1);
+		}
+		DirectoryStream<Path> path = Files.newDirectoryStream(templatesPath);
 		Map<String, String> templates = new HashMap<String, String>();
 		for (Path file : path) {
 			System.out.println("Loading template file: "+file.toString());
@@ -93,10 +98,13 @@ public class Main {
 		return templates;
 	}
 
-	private static List<Page> loadPages(String pagesPath) throws IOException, JsonParseException, JsonMappingException {
-		DirectoryStream<Path> path = Files.newDirectoryStream(Paths.get(pagesPath));
+	private static List<Page> loadPages(Path pagesPath) throws IOException, JsonParseException, JsonMappingException {
+		if(!Files.isDirectory(pagesPath)) {
+			System.err.println("Failed to load page files from: "+pagesPath.toString());
+			System.exit(1);
+		}
 		List<Page> pages = new ArrayList<Page>();
-		for (Path file : path) {
+		for (Path file : Files.newDirectoryStream(pagesPath)) {
 			System.out.println("Loading page file: "+file.toString());
 			Page page = parsePageFile(file);
 			if(page == null) {
