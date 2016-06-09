@@ -1,14 +1,19 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'application'
 
-sourceCompatibility = 1.5
-version = '1.0'
+version = '0.0.1'
+
+sourceCompatibility = 1.8
+
 jar {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Quickstart',
+        attributes 'Implementation-Title': 'Sitegen',
                    'Implementation-Version': version
     }
 }
+
+mainClassName = "com.aeciosantos.sitegen.Main"
 
 repositories {
     mavenCentral()
@@ -16,7 +21,6 @@ repositories {
 
 dependencies {
     compile group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.1'
-	
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.7.4'
 	compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.7.4'
 	compile group: 'commons-io', name: 'commons-io', version: '2.5'
