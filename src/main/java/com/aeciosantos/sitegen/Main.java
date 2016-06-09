@@ -1,5 +1,9 @@
 package com.aeciosantos.sitegen;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -10,6 +14,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,19 +41,62 @@ public class Main {
 	private static ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
 	private static MustacheRenderer mustache = new MustacheRenderer();
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		
 		System.out.println("Starting site generator...");
 		
 		Config config = new Config();
 		Site site = new Site("http://localhost:8080");
 		
+		Path pagesPath = Paths.get(config.pages_path);
+		Path templatesPath = Paths.get(config.templates_path);
 		
-		List<Page> pages = loadPages(Paths.get(config.pages_path));
-		Map<String, String> templateFiles = loadTemplates(Paths.get(config.templates_path));
+		Map<String, String> templateFiles = loadTemplates(templatesPath);
 		
+		processPages(config, site, pagesPath, templateFiles);
+		
+		System.out.println("Copying static folder...");
+		FileUtils.copyDirectory(
+			Paths.get(config.static_path).toFile(),
+			Paths.get(config.output_path, "static").toFile()
+		);
+		
+		System.out.println("Generation finished.");
+		
+		SimpleWebServer server = new SimpleWebServer("127.0.0.1", 8080, 
+				Paths.get(config.output_path).toFile(), true);
+		server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+		System.out.println("Website available at http://127.0.0.1:8080");
+		
+		regiterPagesWatcher(config, site, pagesPath, templateFiles);
+	}
+
+	private static void regiterPagesWatcher(Config config, Site site, Path pagesPath, Map<String, String> templateFiles)
+			throws IOException, InterruptedException {
+		try(WatchService service = pagesPath.getFileSystem().newWatchService()) {
+			pagesPath.register(service, ENTRY_MODIFY);
+			while(true) {
+				WatchKey key = service.take();
+				for(WatchEvent<?> event : key.pollEvents()) {
+					Kind<?> kind = event.kind();
+					if(ENTRY_MODIFY == kind) {
+						System.out.println("File modified. Reprocessing website.");
+						processPages(config, site, pagesPath, templateFiles);
+					}
+				}
+				if(!key.reset()) {
+					break; //loop
+				}
+			}
+		}
+	}
+
+	private static void processPages(Config config, Site site, Path pagesPath,
+									 Map<String, String> templateFiles)
+									 throws IOException {
+		
+		List<Page> pages = loadPages(pagesPath);
 		Files.createDirectories(Paths.get(".", config.output_path).getParent());
-		
 		for(Page page : pages) {
 			
 			Context context = new Context(site, page);
@@ -69,19 +120,6 @@ public class Main {
 				System.err.println("No template engine found for type: "+templateType);
 			}
 		}
-		
-		System.out.println("Copying static folder...");
-		FileUtils.copyDirectory(
-			Paths.get(config.static_path).toFile(),
-			Paths.get(config.output_path, "static").toFile()
-		);
-		
-		System.out.println("Generation finished.");
-		
-		SimpleWebServer server = new SimpleWebServer("127.0.0.1", 8080, 
-				Paths.get(config.output_path).toFile(), true);
-		server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-		System.out.println("Website available at http://127.0.0.1:8080");
 	}
 
 	private static String getTemplateType(String template) {
@@ -112,13 +150,17 @@ public class Main {
 		}
 		List<Page> pages = new ArrayList<Page>();
 		for (Path file : Files.newDirectoryStream(pagesPath)) {
-			System.out.println("Loading page file: "+file.toString());
-			Page page = parsePageFile(file);
-			if(page == null) {
-				System.err.println("Could not parse page file: "+file.toString());
-				continue;
+			if(Files.isDirectory(file)) {
+				pages.addAll(loadPages(file));
+			} else {
+				System.out.println("Loading page file: "+file.toString());
+				Page page = parsePageFile(file);
+				if(page == null) {
+					System.err.println("Could not parse page file: "+file.toString());
+					continue;
+				}
+				pages.add(page);
 			}
-			pages.add(page);
 		}
 		return pages;
 	}
