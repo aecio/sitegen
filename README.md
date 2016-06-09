@@ -19,9 +19,9 @@ export SITEGEN_HOME="{path-to-cloned-sitegen-repository}/build/install/sitegen"
 export PATH="$SITEGEN_HOME/bin:$PATH"
 ```
 
-## Using
+## Usage
 
-Create files using the following convention:
+Files should be created using the following convention:
 
 ```c
 .
@@ -42,3 +42,7 @@ Create files using the following convention:
     │.. page1.html
     └── static // Static folder will be copied here
 ```
+
+## Templates
+
+Currently, only mustache temmplates are supported. Markdown should be available soon.
