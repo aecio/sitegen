@@ -4,11 +4,11 @@ Yet another simple static site generator... that works.
 
 ## Install
 
-To build ache from source, you can run the following commands in your terminal:
+To build sitegen from source, you can run the following commands in your terminal:
 
 ```bash
 git clone https://github.com/aecio/sitegen.git
-cd ache
+cd sitegen
 ./gradlew clean installApp
 ```
 
