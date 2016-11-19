@@ -97,7 +97,7 @@ public class Main {
         Files.createDirectories(Paths.get(".", config.output_path).getParent());
         for(Page page : pages) {
             
-            Context context = new Context(site, page);
+            Context context = new Context(site, page, pages);
             
             if("mustache".equals(page.content_type)) {
                 page.content = mustache.renderToString(context, page.content);
@@ -227,9 +227,12 @@ public class Main {
         public Page page;
         public Site site;
         public Config config;
-        public Context(Site site, Page page) {
+        public List<Page> pages;
+
+        public Context(Site site, Page page, List<Page> pages) {
             this.site = site;
             this.page = page;
+            this.pages = pages;
         }
     }
 
