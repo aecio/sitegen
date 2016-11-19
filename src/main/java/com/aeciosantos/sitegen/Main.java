@@ -252,6 +252,8 @@ public class Main {
         public String permalink = null;
         public String content_type = "mustache";
         public String content = "";
+        public String published_time;
+        public String modified_time;
     }
 
 }
