@@ -43,6 +43,12 @@ Files should be created using the following convention:
     └── static // Static folder will be copied here
 ```
 
+Then, run `sitegen` on the root directory of your project. `sitegen` is going to compile the web site and run a web server. Navigate to  [http://localhost:8080](http://localhost:8080) to view the result. If you change any file while the web server
+is running, then the changes will be detected automatically and the web site
+will recompiled.
+
 ## Templates
 
-Currently, only mustache temmplates are supported. Markdown should be available soon.
+Currently, the following template engines are supported:
+- Mustache
+- Markdown
