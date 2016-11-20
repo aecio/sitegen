@@ -10,7 +10,8 @@ import java.util.Map;
 public class Templates {
     
     private static MustacheRenderer mustache = new MustacheRenderer();
-
+    private static MarkdownRenderer markdown = new MarkdownRenderer();
+    
     private Map<String, String> templates;
 
     public Templates(Map<String, String> templates) {
@@ -40,6 +41,8 @@ public class Templates {
         
         if("mustache".equals(page.content_type)) {
             page.content = mustache.renderToString(context, page.content);
+        } else if("markdown".equals(page.content_type)) {
+            page.content = markdown.renderToString(context, page.content);
         } else {
             System.err.println("WARN: Template engine for internal page content not found: "+page.content_type);
         }
@@ -48,6 +51,8 @@ public class Templates {
         String templateContent = templates.get(page.template);
         if("mustache".equals(templateType)) {
             mustache.renderToFile(context, templateContent, outputFile);
+        } else if("markdown".equals(templateType)) {
+            markdown.renderToFile(context, templateContent, outputFile);
         } else {
             System.err.println("ERROR: No template engine found for type: "+templateType);
         }
