@@ -43,6 +43,7 @@ public class Templates {
             page.content = mustache.renderToString(context, page.content);
         } else if("markdown".equals(page.content_type)) {
             page.content = markdown.renderToString(context, page.content);
+            page.content = mustache.renderToString(context, page.content); // subtitute variables
         } else {
             System.err.println("WARN: Template engine for internal page content not found: "+page.content_type);
         }
