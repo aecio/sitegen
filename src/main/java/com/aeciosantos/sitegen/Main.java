@@ -89,7 +89,11 @@ public class Main {
         Files.createDirectories(Paths.get(".", config.output_path).getParent());
         for(Page page : pages) {
             Context context = new Context(site, page, pages);
-            Path outputFile = Paths.get(config.output_path, page.permalink);
+            String file = page.permalink;
+            if(page.permalink.endsWith("/")) {
+                file += "/index.html";
+            }
+            Path outputFile = Paths.get(config.output_path, file);
             System.out.println("Rendering page at: "+outputFile.toString());
             Files.createDirectories(outputFile.getParent());
             templates.renderPage(context, page, outputFile);
