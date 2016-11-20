@@ -31,7 +31,9 @@ public class FsWatcher extends Thread {
                 for(WatchEvent<?> event : key.pollEvents()) {
                     Kind<?> kind = event.kind();
                     if(ENTRY_MODIFY == kind) {
-                        events.post(new FileModifiedEvent());
+                        @SuppressWarnings("unchecked")
+                        Path filename = ((WatchEvent<Path>) event).context();
+                        events.post(new FileModifiedEvent(fsPath, filename.toString()));
                     }
                 }
                 if(!key.reset()) {
@@ -44,6 +46,15 @@ public class FsWatcher extends Thread {
     }
     
     static class FileModifiedEvent {
+        
+        public final String filename;
+        public final Path fsPath;
+
+        public FileModifiedEvent(Path fsPath, String filename) {
+            this.fsPath = fsPath;
+            this.filename = filename;
+        }
+        
     }
     
 }

@@ -20,9 +20,11 @@ public class Main {
     private EventBus events;
     private Config config;
     private Site site;
+    private Templates templates;
     private Path pagesPath;
     private Path templatesPath;
-    private Templates templates;
+    private Path staticPath;
+    private Path outputStaticPath;
     
     public static void main(String[] args) throws IOException, InterruptedException {
         new Main().execute(args);
@@ -39,16 +41,17 @@ public class Main {
         this.config = new Config();
         this.pagesPath = Paths.get(config.pages_path);
         this.templatesPath = Paths.get(config.templates_path);
+        this.staticPath = Paths.get(config.static_path);
+        this.outputStaticPath = Paths.get(config.output_path, "static");
         
+        System.out.println("Loading templates...");
         this.templates = Templates.load(templatesPath);
         
+        System.out.println("Compiling pages...");
         this.processPages(config, site, pagesPath, templates);
         
         System.out.println("Copying static folder...");
-        FileUtils.copyDirectory(
-            Paths.get(config.static_path).toFile(),
-            Paths.get(config.output_path, "static").toFile()
-        );
+        FileUtils.copyDirectory(staticPath.toFile(), outputStaticPath.toFile());
         
         System.out.println("Generation finished.");
         
@@ -58,22 +61,30 @@ public class Main {
         System.out.println("Website available at http://127.0.0.1:8080");
         
         new FsWatcher(events, pagesPath).start();
+        new FsWatcher(events, templatesPath).start();
+        new FsWatcher(events, staticPath).start();
     }
 
     @Subscribe
     public void handerFileModified(FileModifiedEvent event) {
         try {
             long start = System.currentTimeMillis();
-            System.out.println("File modified. Reprocessing website...");
+            if(event.fsPath.equals(staticPath)) {
+                System.out.println("Static folder modified. Copying static folder...");
+                FileUtils.copyDirectory(staticPath.toFile(), outputStaticPath.toFile());
+            } else if(event.fsPath.equals(templatesPath)) {
+                System.out.println("Template modified. Reloading templates...");
+                this.templates = Templates.load(templatesPath);
+            }
+            System.out.println("Recompiling pages...");
             processPages(config, site, pagesPath, templates);
-            System.out.printf("Done. Took %d ms\n\n", System.currentTimeMillis()-start);
+            System.out.printf("Done (took %d ms).\n\n", System.currentTimeMillis()-start);
         } catch (IOException e) {
             System.err.println("Failed to generated web site for modified files.");
         }
     }
 
     private void processPages(Config config, Site site, Path pagesPath, Templates templates) throws IOException {
-        
         List<Page> pages = Page.loadPages(pagesPath);
         Files.createDirectories(Paths.get(".", config.output_path).getParent());
         for(Page page : pages) {
