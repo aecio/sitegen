@@ -63,9 +63,10 @@ public class Main {
     @Subscribe
     public void handerFileModified(FileModifiedEvent event) {
         try {
+            long start = System.currentTimeMillis();
             System.out.println("File modified. Reprocessing website...");
             processPages(config, site, pagesPath, templates);
-            System.out.println("Done.\n");
+            System.out.printf("Done. Took %d ms\n\n", System.currentTimeMillis()-start);
         } catch (IOException e) {
             System.err.println("Failed to generated web site for modified files.");
         }
