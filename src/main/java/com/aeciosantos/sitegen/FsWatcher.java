@@ -2,6 +2,7 @@ package com.aeciosantos.sitegen;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -23,6 +24,9 @@ public class FsWatcher extends Thread {
     }
     
     public void run()  {
+        if(!Files.exists(fsPath)) {
+            return;
+        }
         try(WatchService service = fsPath.getFileSystem().newWatchService()) {
             fsPath.register(service, ENTRY_MODIFY);
             fsPath.register(service, new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY}, SensitivityWatchEventModifier.HIGH);
