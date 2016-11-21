@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -14,7 +17,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class Page {
     
-    private static ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
+    private static final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
+    
+    public static final Comparator<Page> DESC = (Page p1, Page p2) -> p2.published_time.compareTo(p1.published_time);
     
     public String template = "default.mustache";
     public String title = "";
@@ -23,15 +28,22 @@ public class Page {
     public String permalink = null;
     public String content_type = "mustache";
     public String content = "";
-    public String published_time;
-    public String modified_time;
+    public Date published_time = new Date();
+    public Date modified_time  = new Date();
+    
+    public String getPublicationDay() {
+        return new SimpleDateFormat("MMMMM dd, YYYY").format(published_time);
+    }
+    
+    public String getPublicationHour() {
+        return new SimpleDateFormat("hh:mm aaa").format(published_time);
+    }
     
     public static List<Page> loadPages(Path pagesPath) throws IOException {
-        if(!Files.isDirectory(pagesPath)) {
-            System.err.println("Failed to load page files from: "+pagesPath.toString());
-            System.exit(1);
-        }
         List<Page> pages = new ArrayList<Page>();
+        if(!Files.isDirectory(pagesPath)) {
+            return pages;
+        }
         try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(pagesPath)) {
             for (Path file : directoryStream) {
                 if(Files.isDirectory(file)) {

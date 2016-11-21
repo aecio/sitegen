@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -25,6 +26,8 @@ public class Main {
     private Path templatesPath;
     private Path staticPath;
     private Path outputStaticPath;
+    private Path pagesOutputPath;
+    private Path postsPath;
     
     public static void main(String[] args) throws IOException, InterruptedException {
         new Main().execute(args);
@@ -40,15 +43,17 @@ public class Main {
         
         this.config = new Config();
         this.pagesPath = Paths.get(config.pages_path);
+        this.postsPath = Paths.get(config.posts_path);
         this.templatesPath = Paths.get(config.templates_path);
         this.staticPath = Paths.get(config.static_path);
+        this.pagesOutputPath = Paths.get(config.output_path);
         this.outputStaticPath = Paths.get(config.output_path, "static");
         
         System.out.println("Loading templates...");
         this.templates = Templates.load(templatesPath);
         
         System.out.println("Compiling pages...");
-        this.processPages(config, site, pagesPath, templates);
+        this.processPages();
         
         System.out.println("Copying static folder...");
         FileUtils.copyDirectory(staticPath.toFile(), outputStaticPath.toFile());
@@ -61,6 +66,7 @@ public class Main {
         System.out.println("Website available at http://127.0.0.1:8080");
         
         new FsWatcher(events, pagesPath).start();
+        new FsWatcher(events, postsPath).start();
         new FsWatcher(events, templatesPath).start();
         new FsWatcher(events, staticPath).start();
     }
@@ -77,26 +83,38 @@ public class Main {
                 this.templates = Templates.load(templatesPath);
             }
             System.out.println("Recompiling pages...");
-            processPages(config, site, pagesPath, templates);
+            processPages();
             System.out.printf("Done (took %d ms).\n\n", System.currentTimeMillis()-start);
         } catch (IOException e) {
             System.err.println("Failed to generated web site for modified files.");
         }
     }
 
-    private void processPages(Config config, Site site, Path pagesPath, Templates templates) throws IOException {
+    private void processPages() throws IOException {
+        
         List<Page> pages = Page.loadPages(pagesPath);
-        Files.createDirectories(Paths.get(".", config.output_path).getParent());
-        for(Page page : pages) {
-            Context context = new Context(site, page, pages);
-            String file = page.permalink;
+        List<Page> posts = Page.loadPages(postsPath);
+        pages.sort(Page.DESC);
+        posts.sort(Page.DESC);
+        
+        List<Page> allPages = new ArrayList<>();
+        allPages.addAll(pages);
+        allPages.addAll(posts);
+        allPages.sort(Page.DESC);
+        
+        for(Page page : allPages) {
+            
+            Context context = new Context(site, page, allPages, pages, posts);
+            
+            String filename = page.permalink;
             if(page.permalink.endsWith("/")) {
-                file += "/index.html";
+                filename += "/index.html";
             }
-            Path outputFile = Paths.get(config.output_path, file);
-            System.out.println("Rendering page at: "+outputFile.toString());
-            Files.createDirectories(outputFile.getParent());
-            templates.renderPage(context, page, outputFile);
+            Path outputFilePath = Paths.get(pagesOutputPath.toString(), filename);
+            
+            System.out.println("Rendering page at: "+outputFilePath.toString());
+            Files.createDirectories(outputFilePath.getParent());
+            templates.renderPage(context, page, outputFilePath);
         }
     }
     
