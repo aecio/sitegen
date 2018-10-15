@@ -9,7 +9,7 @@ To build sitegen from source, you can run the following commands in your termina
 ```bash
 git clone https://github.com/aecio/sitegen.git
 cd sitegen
-./gradlew clean installApp
+./gradlew clean installDist
 ```
 
 which will generate an installation package under sitegen/build/install/. You can then make SiteGen command line available in the terminal by adding it to the PATH:
