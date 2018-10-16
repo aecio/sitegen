@@ -1,3 +1,4 @@
+- Update `nanohttpd-webserver` to version 2.3.1
 - Embedded HTML server
 - Templates engine support: `mustache`, `markdown`
 - Pages and posts compilation to static HTML
