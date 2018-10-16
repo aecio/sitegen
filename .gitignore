@@ -5,6 +5,8 @@ data/
 .settings/
 .project
 .classpath
+.idea/
+sitegen.iml
 *.class
 /bin/
 .DS_Store*
