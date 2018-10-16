@@ -1,5 +1,8 @@
 package com.aeciosantos.sitegen;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -8,19 +11,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.Map;
 
 public class Page {
-    
+
     private static final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
-    
     public static final Comparator<Page> DESC = (Page p1, Page p2) -> p2.published_time.compareTo(p1.published_time);
-    
+
+    {
+        yaml.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
     public String template = "default.mustache";
     public String title = "";
     public String author = "";
@@ -28,8 +36,11 @@ public class Page {
     public String permalink = null;
     public String content_type = "mustache";
     public String content = "";
+    public String filename = "";
     public Date published_time = new Date();
     public Date modified_time  = new Date();
+
+    public Map<String, Object> extra = new HashMap<>();
     
     public String getPublicationDay() {
         return new SimpleDateFormat("MMMMM dd, YYYY").format(published_time);
@@ -37,6 +48,16 @@ public class Page {
     
     public String getPublicationHour() {
         return new SimpleDateFormat("hh:mm aaa").format(published_time);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> extra() {
+        return extra;
+    }
+
+    @JsonAnySetter
+    public void setExtra(String name, Object value) {
+        extra.put(name, value);
     }
     
     public static List<Page> loadPages(Path pagesPath) throws IOException {
@@ -87,6 +108,10 @@ public class Page {
 
         if (builder.length() > 0 && page != null) {
             page.content = builder.toString();
+            page.filename = file.getFileName().toString();
+            if (page.permalink == null || page.permalink.isEmpty()) {
+                page.permalink = page.filename;
+            }
         }
 
         return page;

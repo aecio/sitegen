@@ -1,20 +1,21 @@
 package com.aeciosantos.sitegen;
 
+import com.aeciosantos.sitegen.FsWatcher.FileModifiedEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.SimpleWebServer;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.io.FileUtils;
-
-import com.aeciosantos.sitegen.FsWatcher.FileModifiedEvent;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.SimpleWebServer;
 
 public class Main {
 
@@ -29,19 +30,24 @@ public class Main {
     private Path pagesOutputPath;
     private Path postsPath;
     
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         new Main().execute(args);
+    }
+
+    public Main() {
+        this.events = new EventBus("sitegen");
+        this.events.register(this);
     }
     
     public void execute(String[] args) throws IOException {
-        
+
         System.out.println("Starting site generator...");
-        this.events = new EventBus("sitegen");
-        this.events.register(this);
-        
-        this.site = new Site("http://localhost:8080");
-        
-        this.config = new Config();
+
+        System.out.println("Initializing configuration...");
+        this.config = Config.create();
+
+        this.site = new Site(config.base_url);
+
         this.pagesPath = Paths.get(config.pages_path);
         this.postsPath = Paths.get(config.posts_path);
         this.templatesPath = Paths.get(config.templates_path);
@@ -59,11 +65,14 @@ public class Main {
         FileUtils.copyDirectory(staticPath.toFile(), outputStaticPath.toFile());
         
         System.out.println("Generation finished.");
-        
-        SimpleWebServer server = new SimpleWebServer("127.0.0.1", 8080, 
-                Paths.get(config.output_path).toFile(), true);
-        server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-        System.out.println("Website available at http://127.0.0.1:8080");
+
+        int port = config.server_port;
+        String host = config.server_host;
+
+        File serverPath = Paths.get(config.output_path).toFile();
+        SimpleWebServer server = new SimpleWebServer(host, port, serverPath, true);
+        server.start(0, false);
+        System.out.println("Website available at http://" + host + ":" + port);
         
         new FsWatcher(events, pagesPath).start();
         new FsWatcher(events, postsPath).start();
@@ -115,6 +124,11 @@ public class Main {
             System.out.println("Rendering page at: "+outputFilePath.toString());
             Files.createDirectories(outputFilePath.getParent());
             templates.renderPage(context, page, outputFilePath);
+
+
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            System.out.println(mapper.writeValueAsString(page));
         }
     }
     
