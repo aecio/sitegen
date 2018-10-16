@@ -1,0 +1,3 @@
+- Embedded HTML server
+- Templates engine support: `mustache`, `markdown`
+- Pages and posts compilation to static HTML
