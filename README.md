@@ -52,3 +52,4 @@ will recompiled.
 Currently, the following template engines are supported:
 - Mustache
 - Markdown
+- Freemaker
