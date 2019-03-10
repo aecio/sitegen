@@ -11,7 +11,8 @@ public class Templates {
     
     private static MustacheRenderer mustache = new MustacheRenderer();
     private static MarkdownRenderer markdown = new MarkdownRenderer();
-    
+    private static FreemakerRenderer freemaker = new FreemakerRenderer();
+
     private Map<String, String> templates;
 
     public Templates(Map<String, String> templates) {
@@ -21,6 +22,7 @@ public class Templates {
     public static Templates load(Path templatesPath) throws IOException {
         if(!Files.isDirectory(templatesPath)) {
             System.err.println("Failed to load templates from: "+templatesPath.toString());
+            System.err.println("Reason: " + templatesPath.toString() + " is not a directory.");
             System.exit(1);
         }
         DirectoryStream<Path> path = Files.newDirectoryStream(templatesPath);
@@ -38,26 +40,38 @@ public class Templates {
     }
 
     public void renderPage(Context context, Page page, Path outputFile) throws IOException {
-        
-        if("mustache".equals(page.content_type)) {
-            page.content = mustache.renderToString(context, page.content);
-        } else if("markdown".equals(page.content_type)) {
-            page.content = markdown.renderToString(context, page.content);
-            page.content = mustache.renderToString(context, page.content); // subtitute variables
-        } else {
-            System.err.println("WARN: Template engine for internal page content not found: "+page.content_type);
+
+        String contentType = page.content_type == null ? "" : page.content_type;
+        switch (contentType.toLowerCase()) {
+            case "mustache":
+                page.content = mustache.renderToString(context, page.content);
+                break;
+            case "freemaker":
+                page.content = freemaker.renderToString(context, page.content);
+                break;
+            case "markdown":
+                page.content = markdown.renderToString(context, page.content);
+                page.content = mustache.renderToString(context, page.content); // substitute variables even if using markdown template
+                break;
+            default:
+                System.err.println("WARN: Template engine for internal page content not found: " + page.content_type);
         }
-        
-        String templateType    = getFileExtension(page.template);
+
+        String templateType = getFileExtension(page.template);
         String templateContent = templates.get(page.template);
-        if("mustache".equals(templateType)) {
-            mustache.renderToFile(context, templateContent, outputFile);
-        } else if("markdown".equals(templateType)) {
-            markdown.renderToFile(context, templateContent, outputFile);
-        } else {
-            System.err.println("ERROR: No template engine found for type: "+templateType);
+        switch (templateType.toLowerCase()) {
+            case "mustache":
+                mustache.renderToFile(context, templateContent, outputFile);
+                break;
+            case "freemaker":
+                freemaker.renderToFile(context, templateContent, outputFile);
+                break;
+            case "markdown":
+                markdown.renderToFile(context, templateContent, outputFile);
+                break;
+            default:
+                System.err.println("ERROR: No template engine found for type: " + templateType);
         }
-        
     }
     
     private static String getFileExtension(String template) {

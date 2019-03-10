@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.SimpleWebServer;
 import java.io.File;
 import java.io.IOException;
@@ -21,14 +20,9 @@ public class Main {
 
     private EventBus events;
     private Config config;
+    private ConfigPaths paths;
     private Site site;
     private Templates templates;
-    private Path pagesPath;
-    private Path templatesPath;
-    private Path staticPath;
-    private Path outputStaticPath;
-    private Path pagesOutputPath;
-    private Path postsPath;
     
     public static void main(String[] args) throws IOException {
         new Main().execute(args);
@@ -45,24 +39,17 @@ public class Main {
 
         System.out.println("Initializing configuration...");
         this.config = Config.create();
-
+        this.paths = new ConfigPaths(config);
         this.site = new Site(config.base_url);
 
-        this.pagesPath = Paths.get(config.pages_path);
-        this.postsPath = Paths.get(config.posts_path);
-        this.templatesPath = Paths.get(config.templates_path);
-        this.staticPath = Paths.get(config.static_path);
-        this.pagesOutputPath = Paths.get(config.output_path);
-        this.outputStaticPath = Paths.get(config.output_path, "static");
-        
         System.out.println("Loading templates...");
-        this.templates = Templates.load(templatesPath);
+        this.templates = Templates.load(paths.templates);
         
         System.out.println("Compiling pages...");
         this.processPages();
         
         System.out.println("Copying static folder...");
-        FileUtils.copyDirectory(staticPath.toFile(), outputStaticPath.toFile());
+        FileUtils.copyDirectory(paths.staticFiles.toFile(), paths.staticFilesOutput.toFile());
         
         System.out.println("Generation finished.");
 
@@ -74,22 +61,22 @@ public class Main {
         server.start(0, false);
         System.out.println("Website available at http://" + host + ":" + port);
         
-        new FsWatcher(events, pagesPath).start();
-        new FsWatcher(events, postsPath).start();
-        new FsWatcher(events, templatesPath).start();
-        new FsWatcher(events, staticPath).start();
+        new FsWatcher(events, paths.pages).start();
+        new FsWatcher(events, paths.posts).start();
+        new FsWatcher(events, paths.templates).start();
+        new FsWatcher(events, paths.staticFiles).start();
     }
 
     @Subscribe
     public void handerFileModified(FileModifiedEvent event) {
         try {
             long start = System.currentTimeMillis();
-            if(event.fsPath.equals(staticPath)) {
+            if(event.fsPath.equals(paths.staticFiles)) {
                 System.out.println("Static folder modified. Copying static folder...");
-                FileUtils.copyDirectory(staticPath.toFile(), outputStaticPath.toFile());
-            } else if(event.fsPath.equals(templatesPath)) {
+                FileUtils.copyDirectory(paths.staticFiles.toFile(), paths.staticFilesOutput.toFile());
+            } else if(event.fsPath.equals(paths.templates)) {
                 System.out.println("Template modified. Reloading templates...");
-                this.templates = Templates.load(templatesPath);
+                this.templates = Templates.load(paths.templates);
             }
             System.out.println("Recompiling pages...");
             processPages();
@@ -101,8 +88,8 @@ public class Main {
 
     private void processPages() throws IOException {
         
-        List<Page> pages = Page.loadPages(pagesPath);
-        List<Page> posts = Page.loadPages(postsPath);
+        List<Page> pages = Page.loadPages(paths.pages);
+        List<Page> posts = Page.loadPages(paths.posts);
         pages.sort(Page.DESC);
         posts.sort(Page.DESC);
         
@@ -113,22 +100,21 @@ public class Main {
         
         for(Page page : allPages) {
             
-            Context context = new Context(site, page, allPages, pages, posts);
+            Context context = new Context(this.site, page, allPages, pages, posts);
             
             String filename = page.permalink;
             if(page.permalink.endsWith("/")) {
                 filename += "/index.html";
             }
-            Path outputFilePath = Paths.get(pagesOutputPath.toString(), filename);
-            
+            Path outputFilePath = Paths.get(paths.pagesOutput.toString(), filename);
+
             System.out.println("Rendering page at: "+outputFilePath.toString());
             Files.createDirectories(outputFilePath.getParent());
             templates.renderPage(context, page, outputFilePath);
 
-
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            System.out.println(mapper.writeValueAsString(page));
+//            System.out.println(mapper.writeValueAsString(page));
         }
     }
     
@@ -138,6 +124,25 @@ public class Main {
         }
 
         public String base_url;
+    }
+
+    public static class ConfigPaths {
+
+        private Path templates;
+        private Path posts;
+        private Path pages;
+        private Path pagesOutput;
+        private Path staticFiles;
+        private Path staticFilesOutput;
+
+        public ConfigPaths(Config config) {
+            this.templates = Paths.get(config.templates_path);
+            this.posts = Paths.get(config.posts_path);
+            this.pages = Paths.get(config.pages_path);
+            this.pagesOutput = Paths.get(config.output_path);
+            this.staticFiles = Paths.get(config.static_path);
+            this.staticFilesOutput = Paths.get(config.output_path, "static");
+        }
     }
 
 }

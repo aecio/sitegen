@@ -2,7 +2,7 @@
 
 ## Version NEXT
 
-- TODO
+- Implemented basic support to Freemaker templates
 
 ## Version 0.3.0 - October 15, 2018
 

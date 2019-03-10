@@ -83,6 +83,50 @@ public class Page {
         return pages;
     }
 
+    public String getTemplate() {
+        return template;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getPermalink() {
+        return permalink;
+    }
+
+    public String getContent_type() {
+        return content_type;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public Date getPublished_time() {
+        return published_time;
+    }
+
+    public Date getModified_time() {
+        return modified_time;
+    }
+
+    public Map<String, Object> getExtra() {
+        return extra;
+    }
+
     public static Page fromFile(Path file) throws IOException,
                                                   JsonParseException,
                                                   JsonMappingException {

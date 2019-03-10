@@ -3,12 +3,13 @@ package com.aeciosantos.sitegen;
 import java.util.List;
 
 import com.aeciosantos.sitegen.Main.Site;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Context {
-    
+
     public Page page;
     public Site site;
-    public Config config;
     public List<Page> allPages;
     public List<Page> pages;
     public List<Page> posts;
@@ -19,6 +20,35 @@ public class Context {
         this.allPages = allPages;
         this.pages = pages;
         this.posts = posts;
+    }
+
+    public Page getPage() {
+        return page;
+    }
+
+    public Site getSite() {
+        return site;
+    }
+
+    public List<Page> getAllPages() {
+        return allPages;
+    }
+
+    public List<Page> getPages() {
+        return pages;
+    }
+
+    public List<Page> getPosts() {
+        return posts;
+    }
+
+    public String toJson() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize object to JSON.", e);
+        }
     }
     
 }
