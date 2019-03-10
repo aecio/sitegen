@@ -13,7 +13,6 @@ import freemarker.template.TemplateExceptionHandler;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Map;
 
 public class FreemakerRenderer {
 
@@ -42,12 +41,6 @@ public class FreemakerRenderer {
         Configuration cfg = createConfig();
         cfg.setTemplateLoader(stringLoader);
         Template freemakerTemplate = cfg.getTemplate(templateName);
-
-//        ObjectMapper jsonMapper = new ObjectMapper();
-//        Map<String, Object> root = jsonMapper.readValue(
-//            jsonMapper.writeValueAsBytes(context),
-//            new TypeReference<Map<String, Object>>() {
-//        });
 
         try {
             freemakerTemplate.process(context, writer);

@@ -114,7 +114,6 @@ public class Main {
 
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
-//            System.out.println(mapper.writeValueAsString(page));
         }
     }
     
