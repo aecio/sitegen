@@ -16,7 +16,7 @@ public class MarkdownRenderer {
         Files.write(html.getBytes(), outputFile.toFile());
     }
 
-    public String renderToString(Context context, String template) throws IOException {
+    public String renderToString(Context context, String template) {
         Parser parser = Parser.builder().build();
         Node document = parser.parse(template);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
