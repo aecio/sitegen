@@ -9,7 +9,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.rvesse.airline.annotations.Command;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import fi.iki.elonen.SimpleWebServer;
+import io.undertow.Handlers;
+import io.undertow.Undertow;
+import io.undertow.server.handlers.resource.PathResourceManager;
+import io.undertow.server.handlers.resource.ResourceHandler;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -61,16 +64,21 @@ public class Main extends CliTool {
 
     System.out.println("Generation finished.");
 
-    startServer();
+    startWebServer();
   }
 
-  private void startServer() throws IOException {
+  private void startWebServer() {
     int port = config.server_port;
     String host = config.server_host;
     File serverPath = Paths.get(config.output_path).toFile();
 
-    SimpleWebServer server = new SimpleWebServer(host, port, serverPath, true);
-    server.start(0, false);
+    ResourceHandler handler = new ResourceHandler(new PathResourceManager(serverPath.toPath()));
+    Undertow server =
+        Undertow.builder()
+            .addHttpListener(port, host)
+            .setHandler(Handlers.path().addPrefixPath("/", handler))
+            .build();
+    server.start();
 
     System.out.println("Website available at http://" + host + ":" + port);
 
@@ -131,6 +139,7 @@ public class Main extends CliTool {
   }
 
   public static class Site {
+
     public Site(String baseUrl) {
       base_url = baseUrl;
     }
