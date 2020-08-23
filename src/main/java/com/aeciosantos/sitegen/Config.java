@@ -60,4 +60,27 @@ public class Config {
         }
     }
 
+    public ConfigPaths getPaths() {
+        return new ConfigPaths(this);
+    }
+
+    public static class ConfigPaths {
+
+        public final Path templates;
+        public final Path posts;
+        public final Path pages;
+        public final Path pagesOutput;
+        public final Path staticFiles;
+        public final Path staticFilesOutput;
+
+        public ConfigPaths(Config config) {
+            this.templates = Paths.get(config.templates_path);
+            this.posts = Paths.get(config.posts_path);
+            this.pages = Paths.get(config.pages_path);
+            this.pagesOutput = Paths.get(config.output_path);
+            this.staticFiles = Paths.get(config.static_path);
+            this.staticFilesOutput = Paths.get(config.output_path, "static");
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.aeciosantos.sitegen;
 
+import com.aeciosantos.sitegen.Config.ConfigPaths;
 import com.aeciosantos.sitegen.FsWatcher.FileModifiedEvent;
 import com.aeciosantos.sitegen.util.CliTool;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +47,7 @@ public class Main extends CliTool {
 
         System.out.println("Initializing configuration...");
         this.config = Config.create();
-        this.paths = new ConfigPaths(config);
+        this.paths = config.getPaths();
         this.site = new Site(config.base_url);
 
         System.out.println("Loading templates...");
@@ -134,25 +135,6 @@ public class Main extends CliTool {
             base_url = baseUrl;
         }
         public String base_url;
-    }
-
-    public static class ConfigPaths {
-
-        private Path templates;
-        private Path posts;
-        private Path pages;
-        private Path pagesOutput;
-        private Path staticFiles;
-        private Path staticFilesOutput;
-
-        public ConfigPaths(Config config) {
-            this.templates = Paths.get(config.templates_path);
-            this.posts = Paths.get(config.posts_path);
-            this.pages = Paths.get(config.pages_path);
-            this.pagesOutput = Paths.get(config.output_path);
-            this.staticFiles = Paths.get(config.static_path);
-            this.staticFilesOutput = Paths.get(config.output_path, "static");
-        }
     }
 
     private static void printVersion() {
