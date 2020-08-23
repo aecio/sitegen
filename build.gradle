@@ -1,24 +1,11 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'application'
-
-version = '0.3.0'
-
-sourceCompatibility = 1.8
-
-
-//
-// Adds version to final JAR artifact
-//
-jar {
-    manifest {
-        attributes(
-                'Implementation-Title': 'Sitegen',
-                'Implementation-Version': version
-        )
-    }
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.sherter.google-java-format' version '0.8'
 }
 
+version = '0.3.0'
+sourceCompatibility = 1.8
 mainClassName = "com.aeciosantos.sitegen.Main"
 
 repositories {
@@ -49,4 +36,24 @@ uploadArchives {
             dirs 'repos'
         }
     }
+}
+
+//
+// Adds version to final JAR artifact
+//
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': 'Sitegen',
+                'Implementation-Version': version
+        )
+    }
+}
+
+import com.github.sherter.googlejavaformatgradleplugin.GoogleJavaFormat
+task format(type: GoogleJavaFormat) {
+//    source 'src/main'
+//    source 'src/test'
+//    include '**/*.java'
+//    exclude '**/*Template.java'
 }
