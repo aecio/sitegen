@@ -21,6 +21,8 @@ import org.apache.commons.io.FileUtils;
 @Command(name = "sitegen", description = "A minimal static site generator that works.")
 public class Main extends CliTool {
 
+    public static final String VERSION = Main.class.getPackage().getImplementationVersion();
+
     private EventBus events;
     private Config config;
     private ConfigPaths paths;
@@ -28,7 +30,8 @@ public class Main extends CliTool {
     private Templates templates;
 
     public static void main(String[] args) {
-        CliTool.run(args, new Main());
+        printVersion();
+        CliTool.run(args, Main.class);
     }
 
     public Main() {
@@ -150,6 +153,20 @@ public class Main extends CliTool {
             this.staticFiles = Paths.get(config.static_path);
             this.staticFilesOutput = Paths.get(config.output_path, "static");
         }
+    }
+
+    private static void printVersion() {
+        String header = "sitegen " + VERSION;
+        for (int i = 0; i < header.length(); i++) {
+            System.out.print("-");
+        }
+        System.out.println();
+        System.out.println(header);
+        for (int i = 0; i < header.length(); i++) {
+            System.out.print("-");
+        }
+        System.out.println();
+        System.out.println();
     }
 
 }

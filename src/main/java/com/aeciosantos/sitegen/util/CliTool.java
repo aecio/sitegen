@@ -20,8 +20,12 @@ public abstract class CliTool extends HelpOption implements Runnable {
   public abstract void execute() throws Exception;
 
   public static void run(String[] args, CliTool tool) {
+    run(args, tool.getClass());
+  }
+
+  public static <T extends CliTool> void run(String[] args, Class<T> cliClass) {
     try {
-      SingleCommand<? extends CliTool> cmd = SingleCommand.singleCommand(tool.getClass());
+      SingleCommand<? extends CliTool> cmd = SingleCommand.singleCommand(cliClass);
       CliTool cli = cmd.parse(args);
       if (cli.showHelpIfRequested()) {
         return;
@@ -30,7 +34,7 @@ public abstract class CliTool extends HelpOption implements Runnable {
     } catch (ParseException e) {
       System.out.println("Unable to parse the input. " + e.getMessage() + "\n\n");
       try {
-        Help.help(MetadataLoader.loadCommand(tool.getClass()));
+        Help.help(MetadataLoader.loadCommand(cliClass));
       } catch (IOException ex) {
         ex.printStackTrace();
       }
