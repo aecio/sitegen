@@ -1,5 +1,8 @@
 package com.aeciosantos.sitegen;
 
+import com.aeciosantos.sitegen.renderer.FreemakerRenderer;
+import com.aeciosantos.sitegen.renderer.MarkdownRenderer;
+import com.aeciosantos.sitegen.renderer.MustacheRenderer;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;

@@ -1,5 +1,6 @@
-package com.aeciosantos.sitegen;
+package com.aeciosantos.sitegen.renderer;
 
+import com.aeciosantos.sitegen.Context;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.HashFunction;

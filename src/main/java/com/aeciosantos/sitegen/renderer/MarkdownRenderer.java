@@ -1,5 +1,6 @@
-package com.aeciosantos.sitegen;
+package com.aeciosantos.sitegen.renderer;
 
+import com.aeciosantos.sitegen.Context;
 import java.io.IOException;
 import java.nio.file.Path;
 
