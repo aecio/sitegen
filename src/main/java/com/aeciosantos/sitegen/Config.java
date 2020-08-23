@@ -20,7 +20,7 @@ public class Config {
     public int server_port = 8080;
 
     private Config() {
-
+        // required for object deserialization from YAML
     }
 
     public static Config create() {

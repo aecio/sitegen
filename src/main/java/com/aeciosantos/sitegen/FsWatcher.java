@@ -15,7 +15,7 @@ import com.sun.nio.file.SensitivityWatchEventModifier;
 
 public class FsWatcher extends Thread {
     
-    EventBus events;
+    private EventBus events;
     private Path fsPath;
     
     public FsWatcher(EventBus events, Path pagesPath) {

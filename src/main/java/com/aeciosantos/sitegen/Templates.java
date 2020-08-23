@@ -38,10 +38,6 @@ public class Templates {
         return new Templates(templates);
     }
 
-    public boolean canRender(String contentType) {
-        return "mustache".equals(contentType);
-    }
-
     public void renderPage(Context context, Page page, Path outputFile) throws IOException {
 
         String contentType = page.content_type == null ? "" : page.content_type;
