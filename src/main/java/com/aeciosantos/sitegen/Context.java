@@ -1,6 +1,6 @@
 package com.aeciosantos.sitegen;
 
-import com.aeciosantos.sitegen.Main.Site;
+import com.aeciosantos.sitegen.SiteGenerator.Site;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;

@@ -23,7 +23,7 @@ public class Config {
   }
 
   public static Config create() {
-
+    System.out.println("Loading configuration...");
     Config config = readFromFile("./sitegen.yml");
 
     if (config == null) {

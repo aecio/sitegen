@@ -22,12 +22,23 @@ public class Templates {
     this.templates = templates;
   }
 
-  public static Templates load(Path templatesPath) throws IOException {
+  public static Templates load(Path templatesPath) {
     if (!Files.isDirectory(templatesPath)) {
       System.err.println("Failed to load templates from: " + templatesPath.toString());
       System.err.println("Reason: " + templatesPath.toString() + " is not a directory.");
       System.exit(1);
     }
+
+    System.out.println("Loading templates...");
+    try {
+      Map<String, String> templates = loadTemplateFiles(templatesPath);
+      return new Templates(templates);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load tempates.", e);
+    }
+  }
+
+  private static Map<String, String> loadTemplateFiles(Path templatesPath) throws IOException {
     DirectoryStream<Path> path = Files.newDirectoryStream(templatesPath);
     Map<String, String> templates = new HashMap<String, String>();
     for (Path file : path) {
@@ -35,7 +46,7 @@ public class Templates {
       byte[] template = Files.readAllBytes(file);
       templates.put(file.getFileName().toString(), new String(template));
     }
-    return new Templates(templates);
+    return templates;
   }
 
   public void renderPage(Context context, Page page, Path outputFile) throws IOException {
