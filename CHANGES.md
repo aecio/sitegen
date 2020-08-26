@@ -1,8 +1,13 @@
 # SiteGen Change Log
 
-## Version NEXT
+## Version 0.4.0 - August 2020
 
 - Implemented basic support to Freemaker templates
+- Implemented basic command line interface
+- Setup automatic source code formatting using the Google Java Style
+- Replaced `nanohttpd-webserver` by Undertow server
+- Created CLI commands `watch`, `build`, and `help`
+
 
 ## Version 0.3.0 - October 15, 2018
 
@@ -11,6 +16,7 @@
 - Allow setting of any variable in the YML header of the pages to be later
   used in templates via the context variable `page.extra.<variable-name>`.
 - Read configurations from a `sitegen.yml` file in the root of project
+
 
 ## Version 0.2.0 - November 21, 2016
 
