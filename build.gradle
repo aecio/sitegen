@@ -37,7 +37,7 @@ jar {
     manifest {
         attributes(
                 'Implementation-Title': 'Sitegen',
-                'Implementation-Version': version
+                'Implementation-Version': archiveVersion
         )
     }
 }
