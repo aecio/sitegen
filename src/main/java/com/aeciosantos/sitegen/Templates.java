@@ -34,7 +34,7 @@ public class Templates {
       Map<String, String> templates = loadTemplateFiles(templatesPath);
       return new Templates(templates);
     } catch (IOException e) {
-      throw new RuntimeException("Failed to load tempates.", e);
+      throw new RuntimeException("Failed to load templates.", e);
     }
   }
 
