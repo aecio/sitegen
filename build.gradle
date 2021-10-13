@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'application'
-    id 'com.github.sherter.google-java-format' version '0.8'
+    id 'com.github.sherter.google-java-format' version '0.9'
 }
 
 version = '0.4.0'
@@ -42,10 +42,12 @@ jar {
     }
 }
 
-import com.github.sherter.googlejavaformatgradleplugin.GoogleJavaFormat
-task format(type: GoogleJavaFormat) {
-//    source 'src/main'
-//    source 'src/test'
-//    include '**/*.java'
-//    exclude '**/*Template.java'
+// Setup for google-java-format plugin for code formatting.
+// To format code, use:
+//     gradle goJF
+// To verify code format compliance, use:
+//      gradle verJF
+googleJavaFormat {
+    toolVersion = '1.11.0'
+    exclude '.gradle/*'
 }
