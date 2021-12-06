@@ -17,7 +17,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.13.0'
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    implementation group: 'io.undertow', name: 'undertow-core', version: '2.2.13.Final'
+    implementation group: 'io.undertow', name: 'undertow-core', version: '2.2.14.Final'
     implementation group: 'com.google.guava', name: 'guava', version: '31.0.1-jre'
     implementation group: 'org.commonmark', name: 'commonmark', version: '0.18.1'
     implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.31'
