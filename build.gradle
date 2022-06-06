@@ -19,7 +19,7 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
     implementation group: 'io.undertow', name: 'undertow-core', version: '2.2.17.Final'
     implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
-    implementation group: 'org.commonmark', name: 'commonmark', version: '0.18.2'
+    implementation group: 'org.commonmark', name: 'commonmark', version: '0.19.0'
     implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.31'
     implementation group: 'com.github.rvesse', name: 'airline', version: '2.8.5'
 
