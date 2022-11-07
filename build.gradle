@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     implementation group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.10'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.2.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.0'
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.13.2'
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
     implementation group: 'io.undertow', name: 'undertow-core', version: '2.2.17.Final'
