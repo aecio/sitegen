@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'application'
-    id 'com.github.sherter.google-java-format' version '0.9'
+    id("com.diffplug.spotless") version "7.2.0"
 }
 
 version = '0.4.0'
@@ -48,12 +48,22 @@ jar {
     }
 }
 
-// Setup for google-java-format plugin for code formatting.
+// Setup for spotless plugin for code formatting
 // To format code, use:
-//     gradle goJF
+//     gradlew spotlessApply
 // To verify code format compliance, use:
-//      gradle verJF
-googleJavaFormat {
-    toolVersion = '1.11.0'
-    exclude '.gradle/*'
+//      gradle spotlessCheck
+spotless {
+    java {
+        // don't need to set target, it is inferred from java
+
+        // fix imports
+        removeUnusedImports()
+
+        // apply a specific flavor of google-java-format
+        googleJavaFormat('1.28.0')
+
+        // fix formatting of type annotations
+        formatAnnotations()
+    }
 }
