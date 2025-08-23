@@ -6,6 +6,7 @@ import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.handlers.resource.ResourceHandler;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.concurrent.CountDownLatch;
 
 public class WebServer {
 
@@ -27,7 +28,23 @@ public class WebServer {
             .setHandler(Handlers.path().addPrefixPath("/", handler))
             .build();
     server.start();
-
     System.out.println("Website available at http://" + host + ":" + port);
+
+    // Register a shutdown hook to handle graceful shutdown
+    final CountDownLatch latch = new CountDownLatch(1);
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  System.out.println("Shutting down...");
+                  server.stop();
+                  System.out.println("Server stopped.");
+                  latch.countDown(); // Release the main thread
+                }));
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      throw new RuntimeException("Server interrupted abruptly.", e);
+    }
   }
 }

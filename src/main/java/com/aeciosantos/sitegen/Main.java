@@ -1,40 +1,25 @@
 package com.aeciosantos.sitegen;
 
 import com.aeciosantos.sitegen.FileWatcherService.FileModifiedEvent;
-import com.github.rvesse.airline.Cli;
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.help.Help;
-import com.github.rvesse.airline.parser.errors.ParseException;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import java.io.IOException;
-import java.util.Arrays;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
+@Command(
+    name = "sitegen",
+    description = "A simple static site generator that works.",
+    subcommands = {
+      Main.Build.class,
+      Main.Watch.class,
+      Main.SitegenHelp.class,
+      Main.SitegenVersion.class,
+    },
+    versionProvider = Main.SitegenVersion.class)
 public class Main {
 
-  public static final String VERSION = Main.class.getPackage().getImplementationVersion();
-
-  public static void main(String[] args) throws IOException {
-    printVersion();
-    Cli<Runnable> cli = createCli();
-    try {
-      cli.parse(args).run();
-    } catch (ParseException e) {
-      System.out.println("Unable to parse the input. " + e.getMessage() + "\n");
-      printHelp(cli);
-      System.exit(1);
-    } catch (Exception e) {
-      System.err.println("Failed to execute command.");
-      e.printStackTrace(System.err);
-    }
-  }
-
-  private static Cli<Runnable> createCli() {
-    return Cli.<Runnable>builder("sitegen")
-        .withDescription("sitegen - A simple static site generator that works.")
-        .withDefaultCommand(SitegenHelp.class)
-        .withCommands(Build.class, Watch.class, SitegenHelp.class)
-        .build();
+  public static void main(String[] args) {
+    System.exit(new CommandLine(new Main()).execute(args));
   }
 
   @Command(name = "build", description = "Compile the source files into static web pages.")
@@ -100,38 +85,28 @@ public class Main {
 
   @Command(name = "help", description = "Shows help information.")
   public static class SitegenHelp implements Runnable {
-
     @Override
     public void run() {
-      try {
-        printHelp(createCli());
-      } catch (Exception e) {
-        printErrorAndExit(e, "Failed to show help message.");
-      }
+      CommandLine.usage(new Main(), System.out);
     }
   }
 
-  private static void printHelp(Cli<Runnable> cli) throws IOException {
-    Help.help(cli.getMetadata(), Arrays.asList());
+  @Command(name = "version", description = "Shows version information.")
+  public static class SitegenVersion implements Runnable, CommandLine.IVersionProvider {
+    @Override
+    public void run() {
+      System.out.println("Sitegen version " + getVersion()[0]);
+    }
+
+    @Override
+    public String[] getVersion() {
+      return new String[] {Main.class.getPackage().getImplementationVersion()};
+    }
   }
 
   private static void printErrorAndExit(Exception e, String s) {
     System.out.printf(s + "\n\n");
     e.printStackTrace(System.out);
     System.exit(1);
-  }
-
-  private static void printVersion() {
-    String header = "sitegen " + VERSION;
-    for (int i = 0; i < header.length(); i++) {
-      System.out.print("-");
-    }
-    System.out.println();
-    System.out.println(header);
-    for (int i = 0; i < header.length(); i++) {
-      System.out.print("-");
-    }
-    System.out.println();
-    System.out.println();
   }
 }
