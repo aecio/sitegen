@@ -25,7 +25,7 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.20.0'
     implementation group: 'io.undertow', name: 'undertow-core', version: '2.3.20.Final'
     implementation group: 'com.google.guava', name: 'guava', version: '33.5.0-jre'
-    implementation group: 'org.commonmark', name: 'commonmark', version: '0.25.1'
+    implementation group: 'org.commonmark', name: 'commonmark', version: '0.27.0'
     implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.34'
     implementation group: 'info.picocli', name: 'picocli', version: '4.7.7'
 }
